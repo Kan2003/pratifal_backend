@@ -30,4 +30,34 @@ const uploadImage = async (filePath) => {
     }
 }
 
-export {uploadImage}
+const deleteImage = async(fileUrl) => {
+    if (!fileUrl) return null;
+
+    // Extract publicId (assuming images are in the 'home' folder or no folder)
+    const urlSegments = fileUrl.split('/');
+    const fileNameWithExtension = urlSegments[urlSegments.length - 1];
+    const publicIdWithoutExtension = fileNameWithExtension.split('.')[0];
+
+    const publicId = `${publicIdWithoutExtension}`;
+
+    console.log("Public ID to be deleted:", publicId);
+
+    try {
+        const result = await cloudinary.uploader.destroy(publicId, { resource_type: "image", invalidate: true });
+        console.log(result);
+
+        if (result.result === 'ok') {
+            console.log(`Image with public ID ${publicId} deleted successfully`);
+        } else {
+            console.error(`Failed to delete image: ${result.result}`);
+        }
+
+        return result;
+    } catch (error) {
+        console.error("Error deleting image from Cloudinary:", error);
+        return null;
+    }
+}
+
+
+export {uploadImage , deleteImage}
