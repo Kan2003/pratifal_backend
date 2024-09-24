@@ -12,6 +12,7 @@ const rewardSchema = new Schema({
     couponCode : {
         type : String,
         required : true,
+        index : true
     },
     redeemed: {
         type : Boolean,
