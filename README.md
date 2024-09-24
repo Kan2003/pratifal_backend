@@ -37,4 +37,29 @@ Make sure you have the following installed:
 
 ```bash
 git clone https://github.com/your-username/pratifal.git
-cd pratifal
+cd pratifal  
+
+
+```
+### folder Structure
+```
+pratifal/
+│
+├── backend/                  # Backend API
+│   ├── public/               # Public assets (e.g., images, files)
+│   │   └── temp/             # Temporary files for profile uploads
+│   │
+│   ├── src/                  # Source code for the backend
+│   │   ├── models/           # MongoDB models
+│   │   ├── controllers/      # Request handlers
+│   │   ├── routes/           # API routes
+│   │   ├── middleware/       # Middleware functions (e.g., authentication)
+│   │   ├── config/           # Configuration files (e.g., DB connection)
+│   │   ├── utils/            # Utility functions (e.g., helpers)
+│   │   ├── app.js            # Express app setup and configuration
+│   │   └── index.js          # Entry point for the application
+│   │
+│   ├── .gitignore            # Files to be ignored in Git
+│   ├── README.md             # Project documentation
+│   └── package.json          # Dependencies and metadata
+
