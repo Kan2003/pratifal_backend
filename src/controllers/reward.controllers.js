@@ -147,10 +147,20 @@ const deleteReward = asyncHandler(async (req, res) => {
   if (!reward) {
     throw new ApiError(404, "Reward not found");
   }
-
+  
+  // delete reward from database
   await Reward.findByIdAndDelete({
     _id: new mongoose.Types.ObjectId(rewardId),
   });
+  
+  // remove reward id from user's rewards array
+  await User.findOneAndUpdate(
+    req.user._id,
+    {
+      $pull: { rewards: reward._id },
+    },
+    { new: true }
+  )
 
   return res
     .status(200)
@@ -170,6 +180,8 @@ const getAllRewards = asyncHandler(async (req, res) => {
 
   return res.status(200).json(new ApiResponse(200, "all rewards", allrewards));
 });
+
+
 
 export {
   createReward,
