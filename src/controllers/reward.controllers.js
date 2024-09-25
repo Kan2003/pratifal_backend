@@ -13,13 +13,19 @@ const createReward = asyncHandler(async (req, res) => {
       throw new ApiError(400, "All fields are required");
     }
 
+    const date = new Date(expiryDate)
+
+    if(date < Date.now()){
+      return res.status(409).json(new ApiResponse(409, "expiry date exceeded"));
+    }
+
     const existed = await Reward.findOne({
       couponCode,
     });
     console.log(existed);
 
     if (existed) {
-      return res.status(401).json(new ApiResponse(401, "coupon alerday exist"));
+      return res.status(409).json(new ApiResponse(409, "coupon alerday exist"));
     }
     const reward = await Reward.create({
       title,
@@ -190,6 +196,14 @@ const redeemedRewards = asyncHandler( async( req , res) => {
   return res.status(200).json(new ApiResponse(200 , 'redeened rewards fetch successfully' , reward))
 })
 
+const expiredRewards = asyncHandler(async (req , res) => {
+  const expired = await Reward.find({
+    owner: new mongoose.Types.ObjectId(req.user._id),
+    expiryDate: { $lt: new Date() },
+  }).select("-owner");
+
+  return res.status(200).json(new ApiResponse(200, 'expired rewards fetch successfully', expired))
+})
 
 
 
@@ -200,5 +214,6 @@ export {
   totalReward,
   deleteReward,
   getAllRewards,
-  redeemedRewards
+  redeemedRewards,
+  expiredRewards
 };

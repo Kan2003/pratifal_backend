@@ -4,6 +4,7 @@ import {
   createReward,
   deleteReward,
   editReward,
+  expiredRewards,
   getAllRewards,
   redeemedRewards,
   toggleRedeem,
@@ -23,6 +24,9 @@ router.route("/delete-reward/:id").get(verifyJwt, deleteReward);
 router.route("/toggle-redeem/:id").patch(verifyJwt, toggleRedeem);
 
 router.route("/").get(verifyJwt, getAllRewards);
+
 router.route("/redeemed").get(verifyJwt, redeemedRewards);
+
+router.route("/expired-reward").get(verifyJwt, expiredRewards);
 
 export default router;
