@@ -72,7 +72,7 @@ const editReward = asyncHandler(async (req, res) => {
         _id: new mongoose.Types.ObjectId(rewardId),
       },
       {
-        title, 
+        title,
         description,
         couponCode,
         expiryDate: new Date(expiryDate),
@@ -94,38 +94,57 @@ const editReward = asyncHandler(async (req, res) => {
   }
 });
 
-
-const toggleRedeem = asyncHandler(() => {
+const toggleRedeem = asyncHandler(async (req, res) => {
   // logic for redeeming reward
-
-
-})
-
-const totalReward = asyncHandler( async(req , res) => {
-
-  try {
-
-    const totalRewards = await Reward.countDocuments({
-      owner : req.user._id
-    });
-
-    console.log("total rewards", totalRewards);
-    return res
-     .status(200)
-     .json(new ApiResponse(200, "Total rewards", totalRewards));
-  } catch (error) {
-    throw new ApiError(500, "error on fetching total rewards", error);
-  }
-})
-
-const deleteReward = asyncHandler( async(req , res) => {
   const rewardId = req.params.id;
 
   const reward = await Reward.findById({
     _id: new mongoose.Types.ObjectId(rewardId),
-  })
+  });
 
-  if(!reward){
+  const updatedreward = await Reward.findOneAndUpdate(
+    {
+      _id: new mongoose.Types.ObjectId(rewardId),
+    },
+    {
+      redeemed: !reward.redeemed,
+    },
+    { new: true }
+  );
+  if (!reward) {
+    throw new ApiError(404, "Reward not found");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, "reward status updated successfully", updatedreward)
+    );
+});
+
+const totalReward = asyncHandler(async (req, res) => {
+  try {
+    const totalRewards = await Reward.countDocuments({
+      owner: req.user._id,
+    });
+
+    console.log("total rewards", totalRewards);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Total rewards", totalRewards));
+  } catch (error) {
+    throw new ApiError(500, "error on fetching total rewards", error);
+  }
+});
+
+const deleteReward = asyncHandler(async (req, res) => {
+  const rewardId = req.params.id;
+
+  const reward = await Reward.findById({
+    _id: new mongoose.Types.ObjectId(rewardId),
+  });
+
+  if (!reward) {
     throw new ApiError(404, "Reward not found");
   }
 
@@ -133,25 +152,30 @@ const deleteReward = asyncHandler( async(req , res) => {
     _id: new mongoose.Types.ObjectId(rewardId),
   });
 
-  return res.status(200).json(new ApiResponse(200 , 'reward deleted successfully'))
-
-})
-
-
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "reward deleted successfully"));
+});
 
 const getAllRewards = asyncHandler(async (req, res) => {
-
   const allrewards = await Reward.find({
     owner: new mongoose.Types.ObjectId(req.user._id),
-  }).select('-owner')
+  }).select("-owner");
 
-  if(!allrewards){
-    return res.status(200).json(new ApiResponse(200 , 'there is no rewards available'))
+  if (!allrewards) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "there is no rewards available"));
   }
 
+  return res.status(200).json(new ApiResponse(200, "all rewards", allrewards));
+});
 
-  return res.status(200).json(new ApiResponse(200, 'all rewards', allrewards))
-
-})
-
-export { createReward, editReward , toggleRedeem , totalReward , deleteReward , getAllRewards};
+export {
+  createReward,
+  editReward,
+  toggleRedeem,
+  totalReward,
+  deleteReward,
+  getAllRewards,
+};
