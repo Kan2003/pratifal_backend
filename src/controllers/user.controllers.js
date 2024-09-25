@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { deleteImage, uploadImage } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import { Reward } from "../models/rewards.model.js";
 
 const genrateAccessToken = async (id) => {
   try {
@@ -28,7 +29,6 @@ const ragisterUser = asyncHandler(async (req, res) => {
   ) {
     throw new ApiError(400, "All fields are required");
   }
-  console.log("body", req.body);
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
@@ -113,6 +113,23 @@ const loginUser = asyncHandler(async (req, res) => {
       )
     );
 });
+
+const deleteUser = asyncHandler(async (req , res) => {
+  try {
+
+    await Reward.deleteMany({
+      owner : req.user._id,
+    })
+
+    await User.findByIdAndDelete(req.user._id);
+
+
+  } catch (error) {
+    throw new ApiError(401 , 'unable to delete user', error);
+  }
+
+  res.json(new ApiResponse(200, "User deleted successfully"));
+})
 
 const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
@@ -280,5 +297,6 @@ export {
   updateUser,
   getCurrentUser,
   refreshAccessToken,
-  updatePassword
+  updatePassword,
+  deleteUser
 };

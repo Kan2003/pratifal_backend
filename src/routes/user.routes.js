@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  deleteUser,
   loginUser,
   logoutUser,
   ragisterUser,
@@ -24,5 +25,7 @@ router
 router.route("/update-details").patch(verifyJwt, updateUser);
 router.route("/refresh-accesstoken").post(refreshAccessToken);
 router.route("/update-password").patch(verifyJwt, updatePassword);
+
+router.route("/delete-user").delete(verifyJwt, deleteUser);
 
 export default router;

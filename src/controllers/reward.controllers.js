@@ -22,7 +22,6 @@ const createReward = asyncHandler(async (req, res) => {
     const existed = await Reward.findOne({
       couponCode,
     });
-    console.log(existed);
 
     if (existed) {
       return res.status(409).json(new ApiResponse(409, "coupon alerday exist"));
