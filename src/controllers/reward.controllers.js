@@ -181,6 +181,16 @@ const getAllRewards = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, "all rewards", allrewards));
 });
 
+const redeemedRewards = asyncHandler( async( req , res) => {
+  const reward = await Reward.find({
+    owner: new mongoose.Types.ObjectId(req.user._id),
+    redeemed: true,
+  }).select("-owner");
+
+  return res.status(200).json(new ApiResponse(200 , 'redeened rewards fetch successfully' , reward))
+})
+
+
 
 
 export {
@@ -190,4 +200,5 @@ export {
   totalReward,
   deleteReward,
   getAllRewards,
+  redeemedRewards
 };

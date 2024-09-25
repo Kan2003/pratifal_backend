@@ -23,6 +23,6 @@ router
 
 router.route("/update-details").patch(verifyJwt, updateUser);
 router.route("/refresh-accesstoken").post(refreshAccessToken);
-router.route("/update-password").patch(verifyJwt , updatePassword);
+router.route("/update-password").patch(verifyJwt, updatePassword);
 
 export default router;
