@@ -156,8 +156,9 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
-  const newProfileLocalPath = req.file.path;
-
+  const newProfileLocalPath = req.file?.path;
+  
+  
   if (!newProfileLocalPath) {
     throw new ApiError(400, "Please provide a new profile image");
   }
@@ -165,9 +166,9 @@ const updateProfile = asyncHandler(async (req, res) => {
 
   const oldProfile = req.user.profile;
 
-  //   console.log('oldprofile ' , oldProfile);
-
-  await deleteImage(oldProfile);
+  if(oldProfile){
+    await deleteImage(oldProfile);
+  }
 
   if (!newProfile) {
     throw new ApiError(400, "Failed to upload profile image");
@@ -289,6 +290,23 @@ const updatePassword = asyncHandler(async (req , res) => {
     return res.status(200).json(new ApiResponse(200, user, "Password changed successfully"));
 })
 
+
+const verifyToken = asyncHandler( async ( req , res) => {
+  const token = req.cookies?.accessToken || req.header('Authorization')?.replace('Bearer ', '');
+
+  if (!token) {
+    throw new ApiError(401, 'Unauthorized request: No token provided');
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    // Optionally, you can return the user data
+    res.status(200).json({ isValid: true, userId: decodedToken._id });
+  } catch (error) {
+    throw new ApiError(401, 'Invalid or expired token');
+  }
+})
+
 export {
   ragisterUser,
   loginUser,
@@ -298,5 +316,6 @@ export {
   getCurrentUser,
   refreshAccessToken,
   updatePassword,
-  deleteUser
+  deleteUser,
+  verifyToken
 };
