@@ -13,9 +13,9 @@ const createReward = asyncHandler(async (req, res) => {
       throw new ApiError(400, "All fields are required");
     }
 
-    const date = new Date(expiryDate)
+    const date = new Date(expiryDate);
 
-    if(date < Date.now()){
+    if (date < Date.now()) {
       return res.status(409).json(new ApiResponse(409, "expiry date exceeded"));
     }
 
@@ -127,6 +127,32 @@ const toggleRedeem = asyncHandler(async (req, res) => {
     );
 });
 
+const toggleStarred = asyncHandler(async (req, res) => {
+  const rewardId = req.params.id;
+
+  const reward = await Reward.findById({
+    _id: new mongoose.Types.ObjectId(rewardId),
+  });
+
+  if (!reward) {
+    throw new ApiError(404, "Reward not found");
+  }
+
+  const updatedReward = await Reward.findOneAndUpdate(
+    {
+      _id: new mongoose.Types.ObjectId(rewardId),
+    },
+    {
+      starred: !reward.starred,
+    },
+    { new: true }
+  );
+
+  return res
+   .status(200)
+   .json(new ApiResponse(200, "reward status updated successfully", updatedReward));
+});
+
 const totalReward = asyncHandler(async (req, res) => {
   try {
     const totalRewards = await Reward.countDocuments({
@@ -152,12 +178,12 @@ const deleteReward = asyncHandler(async (req, res) => {
   if (!reward) {
     throw new ApiError(404, "Reward not found");
   }
-  
+
   // delete reward from database
   await Reward.findByIdAndDelete({
     _id: new mongoose.Types.ObjectId(rewardId),
   });
-  
+
   // remove reward id from user's rewards array
   await User.findOneAndUpdate(
     req.user._id,
@@ -165,7 +191,7 @@ const deleteReward = asyncHandler(async (req, res) => {
       $pull: { rewards: reward._id },
     },
     { new: true }
-  )
+  );
 
   return res
     .status(200)
@@ -175,7 +201,11 @@ const deleteReward = asyncHandler(async (req, res) => {
 const getAllRewards = asyncHandler(async (req, res) => {
   const allrewards = await Reward.find({
     owner: new mongoose.Types.ObjectId(req.user._id),
-  }).select("-owner");
+  }).select("-owner")
+  .sort({ starred: -1 }); ;
+
+
+  
 
   if (!allrewards) {
     return res
@@ -186,25 +216,27 @@ const getAllRewards = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, "all rewards", allrewards));
 });
 
-const redeemedRewards = asyncHandler( async( req , res) => {
+const redeemedRewards = asyncHandler(async (req, res) => {
   const reward = await Reward.find({
     owner: new mongoose.Types.ObjectId(req.user._id),
     redeemed: true,
   }).select("-owner");
 
-  return res.status(200).json(new ApiResponse(200 , 'redeened rewards fetch successfully' , reward))
-})
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "redeened rewards fetch successfully", reward));
+});
 
-const expiredRewards = asyncHandler(async (req , res) => {
+const expiredRewards = asyncHandler(async (req, res) => {
   const expired = await Reward.find({
     owner: new mongoose.Types.ObjectId(req.user._id),
     expiryDate: { $lt: new Date() },
   }).select("-owner");
 
-  return res.status(200).json(new ApiResponse(200, 'expired rewards fetch successfully', expired))
-})
-
-
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "expired rewards fetch successfully", expired));
+});
 
 export {
   createReward,
@@ -214,5 +246,6 @@ export {
   deleteReward,
   getAllRewards,
   redeemedRewards,
-  expiredRewards
+  expiredRewards,
+  toggleStarred,
 };

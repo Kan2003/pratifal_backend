@@ -8,6 +8,7 @@ import {
   getAllRewards,
   redeemedRewards,
   toggleRedeem,
+  toggleStarred,
   totalReward,
 } from "../controllers/reward.controllers.js";
 
@@ -16,6 +17,8 @@ const router = Router();
 router.route("/create-reward").post(verifyJwt, createReward);
 
 router.route("/update-reward/:id").patch(verifyJwt, editReward);
+
+router.route("/toggle-reward/:id").patch(verifyJwt, toggleStarred);
 
 router.route("/totals").get(verifyJwt, totalReward);
 

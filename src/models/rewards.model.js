@@ -22,6 +22,10 @@ const rewardSchema = new Schema({
         type : Date,
         required : true
     },
+    starred : {
+        type : Boolean,
+        default : false
+    },
     owner: {
         type : Schema.Types.ObjectId,
         ref : 'User',
