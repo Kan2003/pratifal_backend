@@ -77,7 +77,7 @@ const loginUser = asyncHandler(async (req, res) => {
   });
 
   if (!user) {
-    throw new ApiError(401, "user not found");
+    throw new ApiError(404, "user not found");
   }
 
   const valid = await user.isPasswordCorrect(password);
