@@ -14,9 +14,15 @@ const createReward = asyncHandler(async (req, res) => {
     }
 
     const date = new Date(expiryDate);
+    const currentDate = new Date();
 
-    if (date < Date.now()) {
-      return res.status(409).json(new ApiResponse(409, "expiry date exceeded"));
+    // Set both dates to midnight to compare only the date part
+    date.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+
+    // Check if the expiry date is in the past
+    if (date < currentDate) {
+      return res.status(407).json(new ApiResponse(409, "expiry date exceeded"));
     }
 
     const existed = await Reward.findOne({
@@ -26,13 +32,16 @@ const createReward = asyncHandler(async (req, res) => {
     if (existed) {
       return res.status(409).json(new ApiResponse(409, "coupon alerday exist"));
     }
-    const reward = await Reward.create({
-      title,
-      description,
-      couponCode,
-      expiryDate: new Date(expiryDate),
-      owner: new mongoose.Types.ObjectId(req.user._id),
-    });
+
+    const reward = await Reward.create(
+      {
+        title,
+        description,
+        couponCode,
+        expiryDate: new Date(expiryDate),
+        owner: new mongoose.Types.ObjectId(req.user._id),
+      }
+    );
 
     await User.findOneAndUpdate(
       req.user._id,
@@ -44,7 +53,7 @@ const createReward = asyncHandler(async (req, res) => {
 
     return res
       .status(201)
-      .json(new ApiResponse(201, "reward created successfully"));
+      .json(new ApiResponse(201, "reward created successfully" , reward ));
   } catch (error) {
     throw new ApiError(500, "error on creating reward", error);
   }
@@ -149,8 +158,10 @@ const toggleStarred = asyncHandler(async (req, res) => {
   );
 
   return res
-   .status(200)
-   .json(new ApiResponse(200, "reward status updated successfully", updatedReward));
+    .status(200)
+    .json(
+      new ApiResponse(200, "reward status updated successfully", updatedReward)
+    );
 });
 
 const totalReward = asyncHandler(async (req, res) => {
@@ -201,11 +212,8 @@ const deleteReward = asyncHandler(async (req, res) => {
 const getAllRewards = asyncHandler(async (req, res) => {
   const allrewards = await Reward.find({
     owner: new mongoose.Types.ObjectId(req.user._id),
-  }).select("-owner")
-  .sort({ starred: -1 }); ;
-
-
-  
+  }).select("-owner");
+  // .sort({ starred: -1 });
 
   if (!allrewards) {
     return res

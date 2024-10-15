@@ -22,7 +22,7 @@ router.route("/toggle-reward/:id").patch(verifyJwt, toggleStarred);
 
 router.route("/totals").get(verifyJwt, totalReward);
 
-router.route("/delete-reward/:id").get(verifyJwt, deleteReward);
+router.route("/delete-reward/:id").delete(verifyJwt, deleteReward);
 
 router.route("/toggle-redeem/:id").patch(verifyJwt, toggleRedeem);
 
