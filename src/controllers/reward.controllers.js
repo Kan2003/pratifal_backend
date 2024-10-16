@@ -75,7 +75,20 @@ const editReward = asyncHandler(async (req, res) => {
       _id: new mongoose.Types.ObjectId(rewardId),
     });
 
-    console.log(reward);
+    const date = new Date(expiryDate);
+    const currentDate = new Date();
+
+    // Set both dates to midnight to compare only the date part
+    date.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+
+    // Check if the expiry date is in the past
+    if (date < currentDate) {
+      return res.status(407).json(new ApiResponse(409, "expiry date exceeded"));
+    }
+
+  
+
 
     if (!reward) {
       throw new ApiError(404, "Reward not found");
