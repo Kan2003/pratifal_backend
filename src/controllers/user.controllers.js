@@ -6,7 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { Reward } from "../models/rewards.model.js";
 
-const genrateAccessToken = async (id) => {
+const genrateAccessAndRefreshTokens = async (id) => {
   try {
     const user = await User.findById(id);
     const accessToken = user.generateAccessToken();
@@ -86,7 +86,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid credentials");
   }
 
-  const { accessToken, refreshToken } = await genrateAccessToken(user._id);
+  const { accessToken, refreshToken } = await genrateAccessAndRefreshTokens(user._id);
 
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -158,7 +158,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 const updateProfile = asyncHandler(async (req, res) => {
   const newProfileLocalPath = req.file?.path;
   
-  
+  console.log(newProfileLocalPath)
   if (!newProfileLocalPath) {
     throw new ApiError(400, "Please provide a new profile image");
   }
