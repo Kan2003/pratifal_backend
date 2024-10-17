@@ -269,11 +269,11 @@ const updatePassword = asyncHandler(async (req , res) => {
     const {currentPassword , newPassword , reTypeNewPassword} = req.body;
 
     if(!(currentPassword && newPassword && reTypeNewPassword)){
-        throw new ApiError(400, "All fields are required");
+        throw new ApiError(401, "All fields are required");
     }
 
     if(newPassword !== reTypeNewPassword){
-        throw new ApiError(400, "New password and retyped password do not match");
+        throw new ApiError(408, "New password and retyped password do not match");
     }
 
     const user = await User.findById(req.user._id);
@@ -281,7 +281,7 @@ const updatePassword = asyncHandler(async (req , res) => {
     const valid = await user.isPasswordCorrect(currentPassword);
 
     if(!valid){
-        throw new ApiError(401, "Invalid current password");
+        throw new ApiError(402, "Invalid current password");
     }
 
     user.password = newPassword;
