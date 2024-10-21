@@ -4,7 +4,7 @@
   "main": "rewards.model.js",
   "type": "module",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node -r dotenv/config src/index.js",
+    "start": "node -r dotenv/config src/index.js",
     "dev": "cross-env NODE_ENV=development nodemon -r dotenv/config src/index.js"
   },
   "keywords": [],
